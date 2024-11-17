@@ -1,0 +1,132 @@
+<Window x:Class="TextTableConverter.UI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TextTableConverter.UI"
+        mc:Ignorable="d"
+        Title="AI文字自動重點整理成表格工具" Height="500" Width="800"
+        Icon="/Resources/app.ico">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <local:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+    </Window.Resources>
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBox Grid.Column="0" 
+                     Text="{Binding ApiKey, UpdateSourceTrigger=PropertyChanged}"
+                     Margin="0,0,8,0"
+                     Tag="輸入 OpenAI API Key"
+                     ToolTip="請輸入您的 OpenAI API Key">
+                <TextBox.Style>
+                    <Style TargetType="{x:Type TextBox}">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type TextBox}">
+                                    <Grid>
+                                        <TextBox Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 BorderBrush="{TemplateBinding BorderBrush}"
+                                                 BorderThickness="{TemplateBinding BorderThickness}"/>
+                                        <TextBlock Text="{TemplateBinding Tag}"
+                                                   Foreground="Gray"
+                                                   IsHitTestVisible="False"
+                                                   VerticalAlignment="Center"
+                                                   HorizontalAlignment="Left"
+                                                   Margin="5,0"
+                                                   Visibility="{TemplateBinding Text, Converter={StaticResource StringToVisibilityConverter}}"/>
+                                    </Grid>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TextBox.Style>
+            </TextBox>
+            <Button Grid.Column="1" 
+                    Command="{Binding SaveApiKeyCommand}"
+                    Margin="0,0,8,0"
+                    Content="保存"/>
+            <Button Grid.Column="2" 
+                    Command="{Binding ClearApiKeyCommand}"
+                    Content="清除"/>
+        </Grid>
+
+        <ToolBarTray Grid.Row="1">
+            <ToolBar>
+                <Button Command="{Binding OpenFileCommand}" 
+                        ToolTip="打開文件">
+                    <TextBlock Text="打開文件"/>
+                </Button>
+                <Button Command="{Binding OpenMarkdownPreviewCommand}"
+                        ToolTip="在瀏覽器中開啟 Markdown 預覽">
+                    <TextBlock Text="Markdown預覽"/>
+                </Button>
+            </ToolBar>
+        </ToolBarTray>
+
+        <Grid Grid.Row="2" Margin="0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <DockPanel Grid.Column="0">
+                <TextBlock DockPanel.Dock="Top" 
+                          Text="文字內容" 
+                          Margin="0,0,0,8"/>
+                <TextBox Text="{Binding InputText, UpdateSourceTrigger=PropertyChanged}"
+                         TextWrapping="Wrap"
+                         AcceptsReturn="True"
+                         VerticalScrollBarVisibility="Auto"/>
+            </DockPanel>
+
+            <StackPanel Grid.Column="1" Margin="16,0" VerticalAlignment="Center">
+                <Button Command="{Binding TextToTableCommand}" 
+                        Margin="0,0,0,8">
+                    <TextBlock Text="→"/>
+                </Button>
+                <Button Command="{Binding TableToTextCommand}">
+                    <TextBlock Text="←"/>
+                </Button>
+            </StackPanel>
+
+            <DockPanel Grid.Column="2">
+                <TextBlock DockPanel.Dock="Top" 
+                          Text="Markdown表格" 
+                          Margin="0,0,0,8"/>
+                <TextBox Text="{Binding TableMarkdown}"
+                         IsReadOnly="True"
+                         TextWrapping="Wrap"
+                         AcceptsReturn="True"
+                         VerticalScrollBarVisibility="Auto"
+                         FontFamily="Consolas"/>
+            </DockPanel>
+        </Grid>
+
+        <StatusBar Grid.Row="4">
+            <StatusBarItem>
+                <TextBlock Text="{Binding StatusMessage}"/>
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Right">
+                <ProgressBar IsIndeterminate="True" 
+                            Width="20" 
+                            Height="20"
+                            Visibility="{Binding IsProcessing, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</Window>
